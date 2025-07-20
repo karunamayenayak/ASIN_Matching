@@ -1,6 +1,5 @@
 import streamlit as st
 import pandas as pd
-from datetime import datetime
 
 st.title("CSV Column Updater with ASIN Matching")
 
@@ -44,8 +43,8 @@ if 'main_df' in st.session_state:
             else:
                 st.error("Please enter all the required fields.")
 
-        # Button to fill remaining empty correctedLabel with assignLabel values
-        if st.button("Fill remaining with assignLabel"):
+        # Button to fill remaining empty correctedLabel with asinLabel values
+        if st.button("Fill remaining with asinLabel"):
             fill_condition = st.session_state.main_df['correctedLabel'].isna() | (st.session_state.main_df['correctedLabel'].astype(str).str.strip() == "")
             st.session_state.main_df.loc[fill_condition, 'correctedLabel'] = st.session_state.main_df.loc[fill_condition, 'asinLabel']
             st.success(f"Filled {fill_condition.sum()} remaining rows in 'correctedLabel' from 'asinLabel'.")
@@ -53,16 +52,11 @@ if 'main_df' in st.session_state:
             st.write("Final Preview:")
             st.write(st.session_state.main_df.head())
 
-        # Prepare download
-        original_name = st.session_state.last_uploaded_filename
-        base_name = original_name.rsplit('.', 1)[0]
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        updated_filename = f"{base_name}_updated_{timestamp}.csv"
-
+        # Prepare download with same file name
         csv = st.session_state.main_df.to_csv(index=False).encode('utf-8')
         st.download_button(
             label="Download Full Updated CSV",
             data=csv,
-            file_name=updated_filename,
+            file_name=st.session_state.last_uploaded_filename,
             mime='text/csv'
         )
